@@ -11,10 +11,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 
 // Database connection
-mongoose.connect('mongodb://localhost:27017/global_missile_defense_monitor', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-})
+mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/auth')
 .then(() => {
     console.log('Connected to MongoDB');
 })

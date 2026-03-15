@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: intelligence-service
+  labels:
+    app: intelligence-service
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: intelligence-service
+  template:
+    metadata:
+      labels:
+        app: intelligence-service
+    spec:
+      containers:
+        - name: intelligence-service
+          image: your-docker-repo/intelligence-service:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: MONGODB_URI
+              value: "mongodb://mongo:27017/intelligence"
+            - name: NODE_ENV
+              value: "production"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: intelligence-service
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3000
+      targetPort: 3000
+  selector:
+    app: intelligence-service

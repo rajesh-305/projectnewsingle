@@ -1,0 +1,33 @@
+{
+  "name": "global-missile-defense-monitor-shared",
+  "version": "1.0.0",
+  "description": "Shared utilities and types for the Global Missile Defense Monitor project.",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "jest"
+  },
+  "dependencies": {
+    "lodash": "^4.17.21"
+  },
+  "devDependencies": {
+    "typescript": "^4.5.4",
+    "jest": "^27.0.6",
+    "@types/jest": "^27.0.2",
+    "@types/lodash": "^4.14.168"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/global-missile-defense-monitor.git"
+  },
+  "keywords": [
+    "global",
+    "missile",
+    "defense",
+    "monitor",
+    "geopolitical",
+    "simulation"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
+}

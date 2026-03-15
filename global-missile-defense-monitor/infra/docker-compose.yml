@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  api-gateway:
+    build:
+      context: ./services/api-gateway
+    ports:
+      - "3000:3000"
+    depends_on:
+      - auth-service
+      - simulation-service
+      - intelligence-service
+      - alert-service
+      - notification-service
+
+  auth-service:
+    build:
+      context: ./services/auth-service
+    ports:
+      - "3001:3000"
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/auth
+
+  simulation-service:
+    build:
+      context: ./services/simulation-service
+    ports:
+      - "3002:3000"
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/simulation
+
+  intelligence-service:
+    build:
+      context: ./services/intelligence-service
+    ports:
+      - "3003:3000"
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/intelligence
+
+  alert-service:
+    build:
+      context: ./services/alert-service
+    ports:
+      - "3004:3000"
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/alert
+
+  notification-service:
+    build:
+      context: ./services/notification-service
+    ports:
+      - "3005:3000"
+    environment:
+      - MONGO_URI=mongodb://mongo:27017/notification
+
+  mongo:
+    image: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:

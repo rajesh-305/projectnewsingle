@@ -1,11 +1,38 @@
-version: '3.8'
+version: "3.8"
 
 services:
-  api-gateway:
-    build:
-      context: ./services/api-gateway
+  frontend:
+    image: node:20-alpine
+    working_dir: /app
+    command: sh -c "npm install && npm start"
+    volumes:
+      - ../frontend:/app
+      - frontend-node-modules:/app/node_modules
+    environment:
+      - PORT=3000
+      - CHOKIDAR_USEPOLLING=true
     ports:
       - "3000:3000"
+    depends_on:
+      - api-gateway
+
+  api-gateway:
+    image: node:20-alpine
+    working_dir: /app
+    command: sh -c "npm install && npm start"
+    volumes:
+      - ../services/api-gateway:/app
+      - api-gateway-node-modules:/app/node_modules
+    environment:
+      - PORT=3001
+      - NODE_ENV=development
+      - AUTH_SERVICE_URL=http://auth-service:3001
+      - SIMULATION_SERVICE_URL=http://simulation-service:3002
+      - INTELLIGENCE_SERVICE_URL=http://intelligence-service:3003
+      - ALERT_SERVICE_URL=http://alert-service:3004
+      - NOTIFICATION_SERVICE_URL=http://notification-service:3005
+    ports:
+      - "3001:3001"
     depends_on:
       - auth-service
       - simulation-service
@@ -14,51 +41,117 @@ services:
       - notification-service
 
   auth-service:
-    build:
-      context: ./services/auth-service
-    ports:
-      - "3001:3000"
+    image: node:20-alpine
+    working_dir: /app
+    command: sh -c "npm install && npm start"
+    volumes:
+      - ../services/auth-service:/app
+      - auth-service-node-modules:/app/node_modules
     environment:
+      - PORT=3001
       - MONGO_URI=mongodb://mongo:27017/auth
+      - JWT_SECRET=dev-secret
+    ports:
+      - "3101:3001"
+    depends_on:
+      - mongo
 
   simulation-service:
-    build:
-      context: ./services/simulation-service
-    ports:
-      - "3002:3000"
+    image: node:20-alpine
+    working_dir: /app
+    command: sh -c "npm install && npm start"
+    volumes:
+      - ../services/simulation-service:/app
+      - simulation-service-node-modules:/app/node_modules
     environment:
+      - PORT=3002
       - MONGO_URI=mongodb://mongo:27017/simulation
+      - REDIS_URL=redis://redis:6379
+    ports:
+      - "3002:3002"
+    depends_on:
+      - mongo
+      - redis
 
   intelligence-service:
-    build:
-      context: ./services/intelligence-service
-    ports:
-      - "3003:3000"
+    image: node:20-alpine
+    working_dir: /app
+    command: sh -c "npm install && npm start"
+    volumes:
+      - ../services/intelligence-service:/app
+      - intelligence-service-node-modules:/app/node_modules
     environment:
+      - PORT=3003
       - MONGO_URI=mongodb://mongo:27017/intelligence
+      - REDIS_URL=redis://redis:6379
+    ports:
+      - "3003:3003"
+    depends_on:
+      - mongo
+      - redis
 
   alert-service:
-    build:
-      context: ./services/alert-service
-    ports:
-      - "3004:3000"
+    image: node:20-alpine
+    working_dir: /app
+    command: sh -c "npm install && npm start"
+    volumes:
+      - ../services/alert-service:/app
+      - alert-service-node-modules:/app/node_modules
     environment:
+      - PORT=3004
       - MONGO_URI=mongodb://mongo:27017/alert
+    ports:
+      - "3004:3004"
+    depends_on:
+      - mongo
 
   notification-service:
-    build:
-      context: ./services/notification-service
-    ports:
-      - "3005:3000"
+    image: node:20-alpine
+    working_dir: /app
+    command: sh -c "npm install && npm start"
+    volumes:
+      - ../services/notification-service:/app
+      - notification-service-node-modules:/app/node_modules
     environment:
+      - PORT=3005
       - MONGO_URI=mongodb://mongo:27017/notification
+      - SMTP_HOST=mailhog
+      - SMTP_PORT=1025
+    ports:
+      - "3005:3005"
+    depends_on:
+      - mongo
+      - mailhog
 
   mongo:
-    image: mongo
+    image: mongo:7
+    restart: unless-stopped
     ports:
       - "27017:27017"
     volumes:
       - mongo-data:/data/db
 
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+  mailhog:
+    image: mailhog/mailhog:v1.0.1
+    restart: unless-stopped
+    ports:
+      - "8025:8025"
+
 volumes:
+  frontend-node-modules:
+  api-gateway-node-modules:
+  auth-service-node-modules:
+  simulation-service-node-modules:
+  intelligence-service-node-modules:
+  alert-service-node-modules:
+  notification-service-node-modules:
   mongo-data:
+  redis-data:

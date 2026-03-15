@@ -1,29 +1,41 @@
 import { Request, Response } from 'express';
-import { NotificationService } from '../services/notification.service';
+type NotificationItem = {
+    id: string;
+    message: string;
+    recipient: string;
+    createdAt: string;
+};
 
-export class NotificationController {
-    private notificationService: NotificationService;
+const notifications: NotificationItem[] = [];
 
-    constructor() {
-        this.notificationService = new NotificationService();
-    }
-
-    public async sendNotification(req: Request, res: Response): Promise<void> {
-        try {
-            const { message, recipient } = req.body;
-            const result = await this.notificationService.sendNotification(message, recipient);
-            res.status(200).json({ success: true, data: result });
-        } catch (error) {
-            res.status(500).json({ success: false, message: error.message });
+export const sendNotification = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { message, recipient } = req.body;
+        if (!message || !recipient) {
+            res.status(400).json({ success: false, message: 'message and recipient are required' });
+            return;
         }
-    }
 
-    public async getNotifications(req: Request, res: Response): Promise<void> {
-        try {
-            const notifications = await this.notificationService.getNotifications();
-            res.status(200).json({ success: true, data: notifications });
-        } catch (error) {
-            res.status(500).json({ success: false, message: error.message });
-        }
+        const item: NotificationItem = {
+            id: `${Date.now()}`,
+            message,
+            recipient,
+            createdAt: new Date().toISOString(),
+        };
+
+        notifications.unshift(item);
+        res.status(201).json({ success: true, data: item });
+    } catch (error) {
+        const err = error as Error;
+        res.status(500).json({ success: false, message: err.message });
     }
-}
+};
+
+export const getNotifications = async (_req: Request, res: Response): Promise<void> => {
+    try {
+        res.status(200).json({ success: true, data: notifications });
+    } catch (error) {
+        const err = error as Error;
+        res.status(500).json({ success: false, message: err.message });
+    }
+};

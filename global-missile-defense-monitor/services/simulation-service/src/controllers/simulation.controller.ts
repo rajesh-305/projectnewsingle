@@ -1,5 +1,14 @@
 import { Request, Response } from 'express';
-import Scenario from '../models/scenario.model';
+import { Scenario } from '../models/scenario.model';
+
+// Launch maps to creating a scenario so existing route shape remains stable.
+export const launchSimulation = async (req: Request, res: Response) => {
+    return createScenario(req, res);
+};
+
+export const getSimulationStatus = async (req: Request, res: Response) => {
+    return getScenarioById(req, res);
+};
 
 // Create a new simulation scenario
 export const createScenario = async (req: Request, res: Response) => {

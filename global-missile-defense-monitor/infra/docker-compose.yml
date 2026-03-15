@@ -6,6 +6,7 @@ services:
     environment:
       - PORT=3000
       - HOST=0.0.0.0
+      - NODE_OPTIONS=--openssl-legacy-provider
       - DANGEROUSLY_DISABLE_HOST_CHECK=true
       - REACT_APP_API_URL=http://localhost:3001
     ports:
